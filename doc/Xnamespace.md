@@ -61,4 +61,5 @@ If all the application attempts to access a resource or function related to xinp
 If all the apps attempt to communicate with each other, the below will occur.
 
 App1 will be able to communicate with App2 and App3.
+
 App2 and App3 will not be able to access App1 nor each other due to being in lower and different namespaces.
