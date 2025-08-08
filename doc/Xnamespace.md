@@ -30,7 +30,7 @@ How it works
 ---------------
 
 **XNamespace (XN)** uses the **X Access Control Extension Specification (XACE)** to hook into XLibre's functions.
-So, everytime an XLibre resource is used, it will check if that application is allowed access to a resource.
+So, everytime an XLibre resource is used, it will check if that client is allowed access to a resource.
 If it is in the correct namespace with the correct permissions, the resource is available else XN will
 deny access to that resource.
 
@@ -44,10 +44,10 @@ Using the ns.conf.example file.
 | xeyes     | ✔️           | ✔️    | ✔️     |
 | xclock    |              |       |        |
 
-## Example of Application(s) trying to access xinput and each other
+### Example of Clients trying to access xinput and each other from different namespaces
 
 | Application | Namespace | Access to xinput    | Communication with others          |
 |-------------|-----------|---------------------|------------------------------------|
-| App1        | root      | Succeeds (implicit) | Can communicate with App2 and App3 |
-| App2        | xeyes     | Succeeds (explicit) | Cannot access App1 or App3         |
-| App3        | xclock    | Fails               | Cannot access App1 or App2         |
+| Client1     | root      | Succeeds (implicit) | Can communicate with App2 and App3 |
+| Client2     | xeyes     | Succeeds (explicit) | Cannot access App1 or App3         |
+| Client3     | xclock    | Fails               | Cannot access App1 or App2         |
