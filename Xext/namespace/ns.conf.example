@@ -10,6 +10,9 @@
   # sets an auth key using the "MIT-MAGIC-COOKIE-1" protocol for "root" namespace
   auth MIT-MAGIC-COOKIE-1 56f8e62b78e58962de0ceefc05ad90b0
 
+  # To create a "MIT_MAGIC-COOKIE-1", write "xauth generate $DISPLAY MIT-MAGIC-COOKIE-1" will generate and add a token
+    #     for the protocol provided. You can retrieve using "xauth list :1". For more information, use "man xauth".
+
 
 # container <name>
 # creates the namespace xeyes, and makes all "auths" and "allow" configurations affect xeyes namespace only
