@@ -30,8 +30,7 @@ How it works
 ---------------
 
 **XNamespace (XN)** uses the **X Access Control Extension Specification (XACE)** to hook into XLibre's functions.
-So everytime an XLibre resource is used, if XN is enabled, it will check if that application is allowed access to a
-resource.
+So, everytime an XLibre resource is used, it will check if that application is allowed access to a resource.
 If it is in the correct namespace with the correct permissions, the resource is available else XN will
 deny access to that resource.
 
