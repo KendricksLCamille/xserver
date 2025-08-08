@@ -17,7 +17,6 @@ There is no dynamic provisioning in this version yet.
 The extension is enabled when a namespace config is passed to the Xserver via the
 `-namespace <fn>` flag.
 
-
 See `Xext/namespace/ns.conf.example` for a configuration file example.
 
 Authentication / Namespace assignment
@@ -33,7 +32,7 @@ How it works
 **XNamespace (XN)** uses the **X Access Control Extension Specification (XACE)** to hook into XLibre's functions.
 So everytime an XLibre resource is used, if XN is enabled, it will check if that application is allowed access to a
 resource.
-If it is in the correct namespace with the correct permissions, the resource is available else XN will 
+If it is in the correct namespace with the correct permissions, the resource is available else XN will
 deny access to that resource.
 
 Example
@@ -46,10 +45,10 @@ Using the ns.conf.example file.
 | xeyes     | ✔️           | ✔️    | ✔️     |
 | xclock    |              |       |        |
 
+## Example of Application(s) trying to access xinput and each other
 
-
-| Application | Namespace     | Access to xinput | Communication with others                     |
-|--------------|---------------|------------------|----------------------------------------------|
-| App1         | root          | Succeeds (implicit) | Can communicate with App2 and App3       |
-| App2         | xeyes         | Succeeds (explicit) | Cannot access App1 or App3               |
-| App3         | xclock        | Fails             | Cannot access App1 or App2               |
+| Application | Namespace | Access to xinput    | Communication with others          |
+|-------------|-----------|---------------------|------------------------------------|
+| App1        | root      | Succeeds (implicit) | Can communicate with App2 and App3 |
+| App2        | xeyes     | Succeeds (explicit) | Cannot access App1 or App3         |
+| App3        | xclock    | Fails               | Cannot access App1 or App2         |
