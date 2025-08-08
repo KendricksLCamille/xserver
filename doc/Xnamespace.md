@@ -47,18 +47,9 @@ Using the ns.conf.example file.
 | xclock    |              |       |        |
 
 
-If a user has three applications
-- App1 is in the **root** namespace
-- App2 is in the **xeyes** namespace
-- App3 is in the **xclock** namespace
 
-If all the application attempts to access a resource or function related to xinput,
-- App1 will succeed because it is implicitly allowed in the **root** namespace.
-- App2 will succeed because it is explicitly allowed in the **xeyes** namespace.
-- App3 will fail because it isn't allowed in that namespace. 
-
-If all the apps attempt to communicate with each other, the below will occur.
-
-App1 will be able to communicate with App2 and App3.
-
-App2 and App3 will not be able to access App1 nor each other due to being in lower and different namespaces.
+| Application | Namespace     | Access to xinput | Communication with others                     |
+|--------------|---------------|------------------|----------------------------------------------|
+| App1         | root          | Succeeds (implicit) | Can communicate with App2 and App3       |
+| App2         | xeyes         | Succeeds (explicit) | Cannot access App1 or App3               |
+| App3         | xclock        | Fails             | Cannot access App1 or App2               |
