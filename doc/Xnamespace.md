@@ -29,10 +29,10 @@ client is using to authenticate; so, token authentication needs to be enabled.
 How it works
 ---------------
 
-**XNamespace (XN)** uses the **X Access Control Extension Specification (XACE)** to hook into XLibre's functions.
-So, everytime an XLibre resource is used, it will check if that client is allowed access to a resource.
-If it is in the correct namespace with the correct permissions, the resource is available else XN will
-deny access to that resource.
+**XNamespace (XN)** uses the **X Access Control Extension Specification (XACE)** to hook into the X server's functions. 
+Whenever a client tries to access an X server resource, the client's namespace is checked for the correct privileges. 
+If the client is in the correct namespace with the appropriate permissions, access to the resource is granted; 
+otherwise, XN will deny access to that resource.
 
 Example
 ------------
