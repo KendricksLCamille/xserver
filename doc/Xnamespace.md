@@ -46,8 +46,8 @@ Using the ns.conf.example file.
 
 ### Example of Clients trying to access xinput and each other from different namespaces
 
-| Application | Namespace | Access to xinput    | Communication with others          |
-|-------------|-----------|---------------------|------------------------------------|
-| Client1     | root      | Succeeds (implicit) | Can communicate with App2 and App3 |
-| Client2     | xeyes     | Succeeds (explicit) | Cannot access App1 or App3         |
-| Client3     | xclock    | Fails               | Cannot access App1 or App2         |
+| Client  | Namespace | Access to xinput    | Communication with others          |
+|---------|-----------|---------------------|------------------------------------|
+| Client1 | root      | Succeeds (implicit) | Can communicate with App2 and App3 |
+| Client2 | xeyes     | Succeeds (explicit) | Cannot access App1 or App3         |
+| Client3 | xclock    | Fails               | Cannot access App1 or App2         |
