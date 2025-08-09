@@ -25,6 +25,8 @@ client is using to authenticate; so, token authentication needs to be enabled.
 
 An authentification token can either be a **MIT-MAGIC-COOKIE-1** or a **XDM-AUTHORIZATION-1**.
 
+For more information, use the command `man xauth`.
+
 ## MIT_MAGIC-COOKIE-1 Protocol
 An authentification token for the **MIT_MAGIC-COOKIE-1** is a 16-byte UTF-8 hexadecimal string.
 ### How to generate a valid token
