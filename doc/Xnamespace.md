@@ -139,7 +139,7 @@ otherwise, XN will deny access to that resource.
 
 ## Examples
 ### Permissions given by example file
-Use the example conf file below, the table represents what each namespace is allowed to do.
+Use the example conf file below, the table represent what each namespace is allowed to do.
 
 ```
 # When no container are mentioned, all auths and allows configured affect the "root" namespace
