@@ -32,26 +32,21 @@ If the client is in the correct namespace with the appropriate permissions, acce
 otherwise, XN will deny access to that resource.
 
 ## XACE Callbacks Enums used by XN
-- XACE_CLIENT_ACCESS (XCA)
-- XACE_DEVICE_ACCESS (XDA)
 - XACE_EXT_DISPATCH (XED)
 - XACE_EXT_ACCESS (XEA)
-- XACE_PROPERTY_ACCESS (XPA)
 - XACE_RECEIVE_ACCESS (XRecA)
 - XACE_RESOURCE_ACCESS (XResA)
-- XACE_SEND_ACCESS (XSenA)
-- XACE_SERVER_ACCESS (XSerA)
 
 
 ## Consequences of Unallowed access
 
-| Property          | XCA | XDA | XED                                            | XEA                        | XPA | XRecA                                           | XResA                     | XSenA | XSerA |
-|-------------------|-----|-----|------------------------------------------------|----------------------------|-----|-------------------------------------------------|---------------------------|-------|-------|
-| allowMouseMotion  | N/A | N/A | N/A                                            | N/A                        | N/A | Status is set to BadAccess and client is logged | N/A                       | N/A   | N/A   |
-| allowShape        | N/A | N/A | Status is not changed and the client is logged | Status is set to BadAccess | N/A | N/A                                             | N/A                       | N/A   | N/A   |
-| allowTransparency | N/A | N/A | N/A                                            | N/A                        | N/A | N/A                                             | Background will be opaque | N/A   | N/A   |
-| allowXInput       | N/A | N/A | Status is not changed and the client is logged | Status is set to BadAccess | N/A | N/A                                             | N/A                       | N/A   | N/A   |
-| allowXKeyboard    | N/A | N/A | Status is not changed and the client is logged | N/A                        | N/A | N/A                                             | N/A                       | N/A   | N/A   |
+| Property          | XED                                            | XEA                        | XRecA                                           | XResA                     |
+|-------------------|------------------------------------------------|----------------------------|-------------------------------------------------|---------------------------|
+| allowMouseMotion  | N/A                                            | N/A                        | Status is set to BadAccess and client is logged | N/A                       |
+| allowShape        | Status is not changed and the client is logged | Status is set to BadAccess | N/A                                             | N/A                       |
+| allowTransparency | N/A                                            | N/A                        | N/A                                             | Background will be opaque |
+| allowXInput       | Status is not changed and the client is logged | Status is set to BadAccess | N/A                                             | N/A                       |
+| allowXKeyboard    | Status is not changed and the client is logged | N/A                        | N/A                                             | N/A                       |
 
 ## Examples
 ### Permissions given by example file
