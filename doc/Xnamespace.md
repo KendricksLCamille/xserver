@@ -25,31 +25,44 @@ client is using to authenticate; so, token authentication needs to be enabled.
 
 An authentification token can either be a **MIT-MAGIC-COOKIE-1** or a **XDM-AUTHORIZATION-1**.
 
+Make sure the tokens you generate outside xauth are unique.
+
 For more information, use the command `man xauth`.
 
 ## MIT_MAGIC-COOKIE-1 Protocol
+
 An authentification token for the **MIT_MAGIC-COOKIE-1** is a 16-byte UTF-8 hexadecimal string.
+
 ### How to generate a valid token
 
 #### Working X server is available
+
 If you have access to a working X server, use the command `xauth generate $DISPLAY MIT-MAGIC-COOKIE-1`.
 Then use `xauth list` to view the generated token.
 
 #### Working X server is unavailable
+
 If you don't have access to X server, there are two additional methods.
 
 ##### Command Line
+
 If you have access to the command line, there are multiple commands
-    - `od -N32 -x < /dev/urandom | head -n1 |  cut -b9- | sed 's/ //gi'`
-    - `openssl rand -hex 16`
+
+- `od -N32 -x < /dev/urandom | head -n1 |  cut -b9- | sed 's/ //gi'`
+- `openssl rand -hex 16`
 
 ##### Pseudocode with an implemented example
+
+###### Pseudocode
+
 1. Declare and initialize an empty string
 2. Generate a random number from 0 to 15
 3. Convert the number to its hexadecimal equivalent character
 4. Add character to the string
 5. If the string's length is less than 32, go back to step 2
 6. Store the string so you can use it for authentification
+
+###### Implementation
 
 ```c
 int main(void)
@@ -68,24 +81,35 @@ int main(void)
 ```
 
 ## XDM-AUTHORIZATION-1
-An authentification token for the **XDM-AUTHORIZATION-1** is a 16-byte UTF-8 hexadecimal string where the 17th and 
+
+An authentification token for the **XDM-AUTHORIZATION-1** is a 16-byte UTF-8 hexadecimal string where the 17th and
 18th character are 0.
+
 ### How to generate a valid token
+
 #### Working X server is available
-Create a random string of 32 hexadecimal characters and set the 17th and 18th characters to 0. 
- - aabbccddeeffaabb00aabbccddeeffaa
-If you have access to a working X server,
- use the command `xauth add :0 XDM-AUTHORIZATION-1 aabbccddeeffaabb00aabbccddeeffaa` to add it to your xauth.
+
+Create a random string of 32 hexadecimal characters and set the 17th and 18th characters to 0.
+
+- aabbccddeeffaabb00aabbccddeeffaa
+  If you have access to a working X server,
+  use the command `xauth add :0 XDM-AUTHORIZATION-1 aabbccddeeffaabb00aabbccddeeffaa` to add it to your xauth.
 
 #### Working X server is unavailable
+
 If you don't have access to X server, there are two additional methods.
 
 ##### Command Line
+
 If you have access to the command line, there are multiple commands
+
 - `od -N32 -x < /dev/urandom | head -n1 |  cut -b9- | sed 's/ //gi' | sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '`
 - `openssl rand -hex 16 | sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '`
 
 ##### Pseudocode with an implemented example
+
+###### Pseudocode
+
 1. Declare and initialize an empty string
 2. Generate a random number from 0 to 15
 3. Convert the number to its hexadecimal equivalent character
@@ -93,6 +117,8 @@ If you have access to the command line, there are multiple commands
 5. If the string's length is less than 32, go back to step 2
 6. Set the 17th and 18th characters to 0.
 7. Store the string so you can use it for authentification
+
+###### Implementation
 
 ```c
 int main(void)
@@ -117,17 +143,17 @@ int main(void)
 
 # How it works
 
-**XNamespace (XN)** uses the **X Access Control Extension Specification (XACE)** to hook into the X server's functions. 
-Whenever a client tries to access an X server resource, the client's namespace is checked for the correct privileges. 
-If the client is in the correct namespace with the appropriate permissions, access to the resource is granted; 
+**XNamespace (XN)** uses the **X Access Control Extension Specification (XACE)** to hook into the X server's functions.
+Whenever a client tries to access an X server resource, the client's namespace is checked for the correct privileges.
+If the client is in the correct namespace with the appropriate permissions, access to the resource is granted;
 otherwise, XN will deny access to that resource.
 
 ## XACE Callbacks Enums used by XN
+
 - XACE_EXT_DISPATCH (XED)
 - XACE_EXT_ACCESS (XEA)
 - XACE_RECEIVE_ACCESS (XRecA)
 - XACE_RESOURCE_ACCESS (XResA)
-
 
 ## Consequences of Unallowed access
 
@@ -140,7 +166,9 @@ otherwise, XN will deny access to that resource.
 | allowXKeyboard    | Status is not changed and the client is logged | N/A                        | N/A                                             | N/A                       |
 
 ## Examples
+
 ### Permissions given by example file
+
 Use the example conf file below, the table represent what each namespace is allowed to do.
 
 ```
