@@ -23,6 +23,95 @@ See `Xext/namespace/ns.conf.example` for a configuration file example.
 Assignment of clients into namespaces is done by the authentication token the
 client is using to authenticate; so, token authentication needs to be enabled.
 
+An authentification token can either be a **MIT-MAGIC-COOKIE-1** or a **XDM-AUTHORIZATION-1**.
+
+## MIT_MAGIC-COOKIE-1 Protocol
+An authentification token for the **MIT_MAGIC-COOKIE-1** is a 16-byte UTF-8 hexadecimal string.
+### How to generate a valid token
+
+#### Working X server is available
+If you have access to a working X server, use the command `xauth generate $DISPLAY MIT-MAGIC-COOKIE-1`.
+Then use `xauth list` to view the generated token.
+
+#### Working X server is unavailable
+If you don't have access to X server, there are two additional methods.
+
+##### Command Line
+If you have access to the command line, there are multiple commands
+    - `od -N32 -x < /dev/urandom | head -n1 |  cut -b9- | sed 's/ //gi'`
+    - `openssl rand -hex 16`
+
+##### Pseudocode with an implemented example
+1. Declare and initialize an empty string
+2. Generate a random number from 0 to 15
+3. Convert the number to its hexadecimal equivalent character
+4. Add character to the string
+5. If the string's length is less than 32, go back to step 2
+6. Store the string so you can use it for authentification
+
+```c
+int main(void)
+{
+    // Declare and initialize an empty string
+    char hexStr[33] = {0}; // Must be 33 in C to account for null-terminator
+    srand(time(NULL)); // seeding srand
+    for (int i = 0; i < 32; i++)
+    {
+        const int value = (rand() % 16); // Generate a random number from 0 to 15
+        char hexChar = (value < 10 ? '0' : 'a' - 10) + value; // Convert the number to its hexadecimal equivalent character
+        hexStr[i] = hexChar; // Add character to the string
+    } // If the string's length is less than 32, go back to step 2
+    printf("%s\n", hexStr); // Store the string so you can use it for authentification
+}
+```
+
+## XDM-AUTHORIZATION-1
+An authentification token for the **XDM-AUTHORIZATION-1** is a 16-byte UTF-8 hexadecimal string where the 17th and 
+18th character are 0.
+### How to generate a valid token
+#### Working X server is available
+Create a random string of 32 hexadecimal characters and set the 17th and 18th characters to 0. 
+ - aabbccddeeffaabb00aabbccddeeffaa
+If you have access to a working X server,
+ use the command `xauth add :0 XDM-AUTHORIZATION-1 aabbccddeeffaabb00aabbccddeeffaa` to add it to your xauth.
+
+#### Working X server is unavailable
+If you don't have access to X server, there are two additional methods.
+
+##### Command Line
+If you have access to the command line, there are multiple commands
+- `od -N32 -x < /dev/urandom | head -n1 |  cut -b9- | sed 's/ //gi' | sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '`
+- `openssl rand -hex 16 | sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '`
+
+##### Pseudocode with an implemented example
+1. Declare and initialize an empty string
+2. Generate a random number from 0 to 15
+3. Convert the number to its hexadecimal equivalent character
+4. Add character to the string
+5. If the string's length is less than 32, go back to step 2
+6. Set the 17th and 18th characters to 0.
+7. Store the string so you can use it for authentification
+
+```c
+int main(void)
+{
+    // Declare and initialize an empty string
+    char hexStr[33] = {0}; // Must be 33 in C to account for null-terminator
+    srand(time(NULL)); // seeding srand
+    for (int i = 0; i < 32; i++)
+    {
+        const int value = (rand() % 16); // Generate a random number from 0 to 15
+        char hexChar = (value < 10 ? '0' : 'a' - 10) + value; // Convert the number to its hexadecimal equivalent character
+        hexStr[i] = hexChar; // Add character to the string
+    } // If the string's length is less than 32, go back to step 2
+    
+    // Set the 17th and 18th characters to 0.
+    hexStr[16] = '0'; // In C the first character is 0 not 1 and so on.
+    hexStr[17] = '0';
+    
+    printf("%s\n", hexStr); // Store the string so you can use it for authentification
+}
+```
 
 # How it works
 
