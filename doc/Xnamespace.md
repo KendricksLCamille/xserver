@@ -50,7 +50,22 @@ otherwise, XN will deny access to that resource.
 
 ## Examples
 ### Permissions given by example file
-Using the ns.conf.example file.
+Use the example conf file below, the table represents what each namespace is allowed to do.
+
+```
+# When no container are mentioned, all auths and allows configured affect the "root" namespace
+    auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b0
+    
+container xeyes
+  auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b8
+  
+  allow mouse-motion
+  allow shape
+  allow xinput
+
+container xclock
+  auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b7
+```
 
 | Container | mouse-motion | shape | xinput |
 |-----------|--------------|-------|--------|
