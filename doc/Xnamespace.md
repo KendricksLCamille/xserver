@@ -21,7 +21,7 @@ See `Xext/namespace/ns.conf.example` for a configuration file example.
 # Authentication / Namespace assignment
 
 Assignment of clients into namespaces is done by the authentication token the
-client is using to authenticate; so, token authentication needs to be enabled.
+client is using to authenticate.
 
 An authentification token can either be a **MIT-MAGIC-COOKIE-1** or a **XDM-AUTHORIZATION-1**.
 
