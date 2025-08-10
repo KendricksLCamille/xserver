@@ -50,6 +50,11 @@ If you have access to the command line, there are multiple commands
 
 - `od -N32 -x < /dev/urandom | head -n1 |  cut -b9- | sed 's/ //gi'`
 - `openssl rand -hex 16`
+- `dd if=/dev/urandom bs=16 count=1 2>/dev/null | xxd -p`
+- `uuidgen | tr -d '-'`
+- `head -c16 </dev/urandom | xxd -p -u`
+- `xxd -u -l 16 -p /dev/urandom`
+- `tr -dc 'A-F0-9' < /dev/urandom | dd bs=1 count=32 2>/dev/null`
 
 ##### Pseudocode with an implemented example
 
@@ -101,10 +106,8 @@ If you don't have access to X server, there are two additional methods.
 
 ##### Command Line
 
-If you have access to the command line, there are multiple commands
-
-- `od -N32 -x < /dev/urandom | head -n1 |  cut -b9- | sed 's/ //gi' | sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '`
-- `openssl rand -hex 16 | sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '`
+Any of the commands shown in **MIT-MAGIC-COOKIE-1** followed by `| sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '` will
+generate a valid **XDM-AUTHORIZATION-1** token
 
 ##### Pseudocode with an implemented example
 
