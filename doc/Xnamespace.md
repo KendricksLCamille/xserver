@@ -24,8 +24,11 @@ Assignment of clients into namespaces is done by the authentication token the
 client is using to authenticate.
 
 An authentification token can either be a **MIT-MAGIC-COOKIE-1** or a **XDM-AUTHORIZATION-1**.
+When an XLibre client is created, it can be provided an authentification protocol and token. 
+These two pieces of information are used to find the correct namespace and permission for the client.
 
-Make sure the tokens you generate outside xauth are unique.
+
+If a token is generated outside xauth, ensure the tokens are unique.
 
 For more information, use the command `man xauth`.
 
