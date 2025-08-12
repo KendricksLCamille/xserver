@@ -14,7 +14,7 @@ server startup.
 There is no dynamic provisioning in this version yet.
 The extension is enabled when a namespace config is passed to the Xserver via the
 `-namespace <fn>` flag.
-If a container hasn't been declared previously, the current container is **root**. 
+If a container hasn't been declared previously, the current container is **root**.
 As a consequence, the **superpower**and **allow** commands have no effect as the root has every resource accessible.
 So, only the **auth** command matters before the first **container** is declared
 
@@ -29,7 +29,6 @@ A configuration file accepts four types of commands.
 | auth       | Adds a new token to a namespace so it can be used to access the current namespace. [Permissions mentioned below.](#consequences-of-unallowed-access) |
 | superpower | Current namespace is give all the powers of the root namespace.                                                                                      |
 
-
 See `Xext/namespace/ns.conf.example` for a configuration file example.
 
 ## Authentication / Namespace assignment
@@ -38,32 +37,21 @@ Assignment of clients into namespaces is done by the authentication token the
 client is using to authenticate.
 
 An authentification token can either be a **MIT-MAGIC-COOKIE-1** or a **XDM-AUTHORIZATION-1**.
-When an XLibre client is created, it can be provided an authentification protocol and token. 
+When an XLibre client is created, it can be provided an authentification protocol and token.
 These two pieces of information are used to find the correct namespace and permission for the client.
 
-
 If a token is generated outside xauth, ensure the tokens are unique.
-
 For more information, use the command `man xauth`.
 
 ### MIT_MAGIC-COOKIE-1 Protocol
 
 An authentification token for the **MIT_MAGIC-COOKIE-1** is a 16-byte UTF-8 hexadecimal string.
-
-#### How to generate a valid token
-
-##### Working X server is available
+To generate a valid token, you have to options depending whether the X server is already running.
 
 If you have access to a working X server, use the command `xauth generate $DISPLAY MIT-MAGIC-COOKIE-1`.
-Then use `xauth list` to view the generated token.
+Then use `xauth list` to view the generated token. This will generate a valid in
 
-##### Working X server is unavailable
-
-If you don't have access to X server, there are two additional methods.
-
-###### Command Line
-
-If you have access to the command line, there are multiple commands
+Else, if you don't have access to X server, use any of the commands below to generate a valid token.
 
 - `od -N32 -x < /dev/urandom | head -n1 |  cut -b9- | sed 's/ //gi'`
 - `openssl rand -hex 16`
@@ -73,93 +61,17 @@ If you have access to the command line, there are multiple commands
 - `xxd -u -l 16 -p /dev/urandom`
 - `tr -dc 'A-F0-9' < /dev/urandom | dd bs=1 count=32 2>/dev/null`
 
-###### Pseudocode with an implemented example
-
-####### Pseudocode
-
-1. Declare and initialize an empty string
-2. Generate a random number from 0 to 15
-3. Convert the number to its hexadecimal equivalent character
-4. Add character to the string
-5. If the string's length is less than 32, go back to step 2
-6. Store the string so you can use it for authentification
-
-####### Implementation
-
-```c
-int main(void)
-{
-    // Declare and initialize an empty string
-    char hexStr[33] = {0}; // Must be 33 in C to account for null-terminator
-    srand(time(NULL)); // seeding srand
-    for (int i = 0; i < 32; i++)
-    {
-        const int value = (rand() % 16); // Generate a random number from 0 to 15
-        char hexChar = (value < 10 ? '0' : 'a' - 10) + value; // Convert the number to its hexadecimal equivalent character
-        hexStr[i] = hexChar; // Add character to the string
-    } // If the string's length is less than 32, go back to step 2
-    printf("%s\n", hexStr); // Store the string so you can use it for authentification
-}
-```
+For more information on implementing the protocol, please go to the [Appendix](#appendix)
 
 ### XDM-AUTHORIZATION-1
 
 An authentification token for the **XDM-AUTHORIZATION-1** is a 16-byte UTF-8 hexadecimal string where the 17th and
 18th character are 0.
 
-#### How to generate a valid token
-
-##### Working X server is available
-
-Create a random string of 32 hexadecimal characters and set the 17th and 18th characters to 0.
-
-- aabbccddeeffaabb00aabbccddeeffaa
-  If you have access to a working X server,
-  use the command `xauth add :0 XDM-AUTHORIZATION-1 aabbccddeeffaabb00aabbccddeeffaa` to add it to your xauth.
-
-##### Working X server is unavailable
-
-If you don't have access to X server, there are two additional methods.
-
-###### Command Line
+`xauth` provides no means to generate this protocol so it has to be done by hand.
 
 Any of the commands shown in **MIT-MAGIC-COOKIE-1** followed by `| sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '` will
-generate a valid **XDM-AUTHORIZATION-1** token
-
-###### Pseudocode with an implemented example
-
-####### Pseudocode
-
-1. Declare and initialize an empty string
-2. Generate a random number from 0 to 15
-3. Convert the number to its hexadecimal equivalent character
-4. Add character to the string
-5. If the string's length is less than 32, go back to step 2
-6. Set the 17th and 18th characters to 0.
-7. Store the string so you can use it for authentification
-
-####### Implementation
-
-```c
-int main(void)
-{
-    // Declare and initialize an empty string
-    char hexStr[33] = {0}; // Must be 33 in C to account for null-terminator
-    srand(time(NULL)); // seeding srand
-    for (int i = 0; i < 32; i++)
-    {
-        const int value = (rand() % 16); // Generate a random number from 0 to 15
-        char hexChar = (value < 10 ? '0' : 'a' - 10) + value; // Convert the number to its hexadecimal equivalent character
-        hexStr[i] = hexChar; // Add character to the string
-    } // If the string's length is less than 32, go back to step 2
-    
-    // Set the 17th and 18th characters to 0.
-    hexStr[16] = '0'; // In C the first character is 0 not 1 and so on.
-    hexStr[17] = '0';
-    
-    printf("%s\n", hexStr); // Store the string so you can use it for authentification
-}
-```
+generates a valid **XDM-AUTHORIZATION-1** token
 
 ## How it works
 
@@ -219,3 +131,24 @@ container xclock
 | Client1 | root      | Succeeds (implicit) | Can communicate with App2 and App3 |
 | Client2 | xeyes     | Succeeds (explicit) | Cannot access App1 or App3         |
 | Client3 | xclock    | Fails               | Cannot access App1 or App2         |
+
+## Appendix
+
+### MIT-MAGIC-PROTOCOL-1 Pseudocode
+
+1. Declare and initialize an empty string
+2. Generate a random number from 0 to 15
+3. Convert the number to its hexadecimal equivalent character
+4. Add character to the string
+5. If the string's length is less than 32, go back to step 2
+6. Store the string so you can use it for authentification
+
+### XDM-AUTHORIZATION-1 Pseudocode
+
+1. Declare and initialize an empty string
+2. Generate a random number from 0 to 15
+3. Convert the number to its hexadecimal equivalent character
+4. Add character to the string
+5. If the string's length is less than 32, go back to step 2
+6. Set the 17th and 18th characters to 0.
+7. Store the string so you can use it for authentification
