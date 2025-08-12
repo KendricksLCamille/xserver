@@ -101,7 +101,7 @@ otherwise, XN will deny access to that resource.
 
 #### Permissions given by example file
 
-Use the example conf file below, the table represent what each namespace is allowed to do.
+Presented below is an example Xnamespace configuration file.
 
 ```
 ## When no container are mentioned, all auths and allows configured affect the "root" namespace
@@ -118,21 +118,28 @@ container xclock
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b7
   allow transparency
   allow xkeyboard
+ 
+ container foobar
+    superpower
 ```
+
+Using the example conf file above, the table below represents what each namespace is allowed to do.
 
 | Container | mouse-motion | shape | xinput | xkeyboard | transparency |
 |-----------|--------------|-------|--------|-----------|--------------|
 | root      | ✔️           | ✔️    | ✔️     | ✔️        | ✔️           |
 | xeyes     | ✔️           | ✔️    | ✔️     |           |              |
 | xclock    |              |       |        | ✔️        | ✔️           |
+| foobar    | ✔️           | ✔️    | ✔️     | ✔️        | ✔️           |
 
 #### Example of Clients trying to access xinput and each other from different namespaces
 
-| Client  | Namespace | Access to xinput    | Communication with others          |
-|---------|-----------|---------------------|------------------------------------|
-| Client1 | root      | Succeeds (implicit) | Can communicate with App2 and App3 |
-| Client2 | xeyes     | Succeeds (explicit) | Cannot access App1 or App3         |
-| Client3 | xclock    | Fails               | Cannot access App1 or App2         |
+| Client  | Namespace | Access to xinput    | Access transparency | Communication with others                 |
+|---------|-----------|---------------------|---------------------|-------------------------------------------|
+| Client1 | root      | Succeeds (implicit) | Succeeds (implicit) | Can communicate with App2, App3, and App4 |
+| Client2 | xeyes     | Succeeds (explicit) | Fails               | Cannot access App1 or App3                |
+| Client3 | xclock    | Fails               | Succeeds (explicit) | Cannot access App1 or App2                |
+| Client4 | foobar    | Succeeds (implicit) | Succeeds (implicit) | Can communicate with App2, App3, and App1 |
 
 ## Appendix
 
