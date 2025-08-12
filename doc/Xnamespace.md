@@ -55,11 +55,8 @@ Else, if you don't have access to X server, use any of the commands below to gen
 
 - `od -N32 -x < /dev/urandom | head -n1 |  cut -b9- | sed 's/ //gi'`
 - `openssl rand -hex 16`
-- `dd if=/dev/urandom bs=16 count=1 2>/dev/null | xxd -p`
 - `uuidgen | tr -d '-'`
-- `head -c16 </dev/urandom | xxd -p -u`
 - `xxd -u -l 16 -p /dev/urandom`
-- `tr -dc 'A-F0-9' < /dev/urandom | dd bs=1 count=32 2>/dev/null`
 
 For more information on implementing the protocol, please go to the [Appendix](#appendix)
 
