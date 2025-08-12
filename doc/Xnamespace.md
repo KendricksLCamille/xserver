@@ -15,6 +15,21 @@ server startup.
 There is no dynamic provisioning in this version yet.
 The extension is enabled when a namespace config is passed to the Xserver via the
 `-namespace <fn>` flag.
+If a container hasn't been declared previously, the current container is **root**. 
+As a consequence, the **superpower**and **allow** commands have no effect as the root has every resource accessible.
+So, only the **auth** command matters before the first **container** is declared
+
+## Commands
+
+A configuration file accepts four types of commands.
+
+| Command    | Description                                                                                                                                          |
+|------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| container  | Creates a new container and changes the current namespace to the new container.                                                                      |
+| allow      | Enables access to resource on a case by case basis for the current namespace.                                                                        |
+| auth       | Adds a new token to a namespace so it can be used to access the current namespace. [Permissions mentioned below.](#consequences-of-unallowed-access) |
+| superpower | Current namespace is give all the powers of the root namespace.                                                                                      |
+
 
 See `Xext/namespace/ns.conf.example` for a configuration file example.
 
