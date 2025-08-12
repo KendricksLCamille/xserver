@@ -67,7 +67,8 @@ An authentification token for the **XDM-AUTHORIZATION-1** is a 16-byte UTF-8 hex
 
 `xauth` provides no means to generate this protocol so it has to be done by hand.
 
-Any of the commands shown in [**MIT-MAGIC-COOKIE-1**](#mit_magic-cookie-1-protocol) followed by `| sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '` will
+Any of the commands shown in [**MIT-MAGIC-COOKIE-1**](#mit_magic-cookie-1-protocol) followed by
+`| sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '` will
 generate a valid **XDM-AUTHORIZATION-1** token
 
 For more information on implementing the protocol, please go to the [Appendix](#xdm-authorization-1-pseudocode).
@@ -88,13 +89,13 @@ otherwise, XN will deny access to that resource.
 
 ### Consequences of Unallowed access
 
-| Permissions       | XED                                            | XEA                        | XRecA                                           | XResA                     |
-|-------------------|------------------------------------------------|----------------------------|-------------------------------------------------|---------------------------|
-| allowMouseMotion  | N/A                                            | N/A                        | Status is set to BadAccess and client is logged | N/A                       |
-| allowShape        | Status is not changed and the client is logged | Status is set to BadAccess | N/A                                             | N/A                       |
-| allowTransparency | N/A                                            | N/A                        | N/A                                             | Background will be opaque |
-| allowXInput       | Status is not changed and the client is logged | Status is set to BadAccess | N/A                                             | N/A                       |
-| allowXKeyboard    | Status is not changed and the client is logged | N/A                        | N/A                                             | N/A                       |
+| Permissions  | XED                                            | XEA                        | XRecA                                           | XResA                     |
+|--------------|------------------------------------------------|----------------------------|-------------------------------------------------|---------------------------|
+| mouse-motion | N/A                                            | N/A                        | Status is set to BadAccess and client is logged | N/A                       |
+| shape        | Status is not changed and the client is logged | Status is set to BadAccess | N/A                                             | N/A                       |
+| transparency | N/A                                            | N/A                        | N/A                                             | Background will be opaque |
+| xinput       | Status is not changed and the client is logged | Status is set to BadAccess | N/A                                             | N/A                       |
+| xkeyboard    | Status is not changed and the client is logged | N/A                        | N/A                                             | N/A                       |
 
 ### Examples
 
@@ -115,13 +116,15 @@ container xeyes
 
 container xclock
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b7
+  allow transparency
+  allow xkeyboard
 ```
 
-| Container | mouse-motion | shape | xinput |
-|-----------|--------------|-------|--------|
-| root      | ✔️           | ✔️    | ✔️     |
-| xeyes     | ✔️           | ✔️    | ✔️     |
-| xclock    |              |       |        |
+| Container | mouse-motion | shape | xinput | xkeyboard | transparency |
+|-----------|--------------|-------|--------|-----------|--------------|
+| root      | ✔️           | ✔️    | ✔️     | ✔️        | ✔️           |
+| xeyes     | ✔️           | ✔️    | ✔️     |           |              |
+| xclock    |              |       |        | ✔️        | ✔️           |
 
 #### Example of Clients trying to access xinput and each other from different namespaces
 
