@@ -58,7 +58,7 @@ Else, if you don't have access to X server, use any of the commands below to gen
 - `uuidgen | tr -d '-'`
 - `xxd -u -l 16 -p /dev/urandom`
 
-For more information on implementing the protocol, please go to the [Appendix](#appendix)
+For more information on implementing the protocol, please go to the [Appendix](#mit-magic-cookie-1-pseudocode).
 
 ### XDM-AUTHORIZATION-1
 
@@ -67,8 +67,10 @@ An authentification token for the **XDM-AUTHORIZATION-1** is a 16-byte UTF-8 hex
 
 `xauth` provides no means to generate this protocol so it has to be done by hand.
 
-Any of the commands shown in **MIT-MAGIC-COOKIE-1** followed by `| sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '` will
-generates a valid **XDM-AUTHORIZATION-1** token
+Any of the commands shown in [**MIT-MAGIC-COOKIE-1**](#mit_magic-cookie-1-protocol) followed by `| sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '` will
+generate a valid **XDM-AUTHORIZATION-1** token
+
+For more information on implementing the protocol, please go to the [Appendix](#xdm-authorization-1-pseudocode).
 
 ## How it works
 
@@ -131,7 +133,7 @@ container xclock
 
 ## Appendix
 
-### MIT-MAGIC-PROTOCOL-1 Pseudocode
+### MIT-MAGIC-COOKIE-1 Pseudocode
 
 1. Declare and initialize an empty string
 2. Generate a random number from 0 to 15
