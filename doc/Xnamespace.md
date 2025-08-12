@@ -1,5 +1,4 @@
-Xnamespace extension v1.0
-=========================
+# Xnamespace extension v1.0
 
 This extension separates clients into several namespaces which are isolated from each other.
 It is similar to Linux's kernel namespaces.
@@ -8,7 +7,7 @@ Namespaces have their own selections, and clients cannot directly interact
 (send messages) or access another client's resources across namespace borders.
 The only exceptions are clients in the root namespace.
 
-# Configuration
+## Configuration
 
 Namespaces are defined in a separate configuration file, which is loaded at
 server startup.
@@ -19,7 +18,7 @@ If a container hasn't been declared previously, the current container is **root*
 As a consequence, the **superpower**and **allow** commands have no effect as the root has every resource accessible.
 So, only the **auth** command matters before the first **container** is declared
 
-## Commands
+### Commands
 
 A configuration file accepts four types of commands.
 
@@ -33,7 +32,7 @@ A configuration file accepts four types of commands.
 
 See `Xext/namespace/ns.conf.example` for a configuration file example.
 
-# Authentication / Namespace assignment
+## Authentication / Namespace assignment
 
 Assignment of clients into namespaces is done by the authentication token the
 client is using to authenticate.
@@ -47,22 +46,22 @@ If a token is generated outside xauth, ensure the tokens are unique.
 
 For more information, use the command `man xauth`.
 
-## MIT_MAGIC-COOKIE-1 Protocol
+### MIT_MAGIC-COOKIE-1 Protocol
 
 An authentification token for the **MIT_MAGIC-COOKIE-1** is a 16-byte UTF-8 hexadecimal string.
 
-### How to generate a valid token
+#### How to generate a valid token
 
-#### Working X server is available
+##### Working X server is available
 
 If you have access to a working X server, use the command `xauth generate $DISPLAY MIT-MAGIC-COOKIE-1`.
 Then use `xauth list` to view the generated token.
 
-#### Working X server is unavailable
+##### Working X server is unavailable
 
 If you don't have access to X server, there are two additional methods.
 
-##### Command Line
+###### Command Line
 
 If you have access to the command line, there are multiple commands
 
@@ -74,9 +73,9 @@ If you have access to the command line, there are multiple commands
 - `xxd -u -l 16 -p /dev/urandom`
 - `tr -dc 'A-F0-9' < /dev/urandom | dd bs=1 count=32 2>/dev/null`
 
-##### Pseudocode with an implemented example
+###### Pseudocode with an implemented example
 
-###### Pseudocode
+####### Pseudocode
 
 1. Declare and initialize an empty string
 2. Generate a random number from 0 to 15
@@ -85,7 +84,7 @@ If you have access to the command line, there are multiple commands
 5. If the string's length is less than 32, go back to step 2
 6. Store the string so you can use it for authentification
 
-###### Implementation
+####### Implementation
 
 ```c
 int main(void)
@@ -103,14 +102,14 @@ int main(void)
 }
 ```
 
-## XDM-AUTHORIZATION-1
+### XDM-AUTHORIZATION-1
 
 An authentification token for the **XDM-AUTHORIZATION-1** is a 16-byte UTF-8 hexadecimal string where the 17th and
 18th character are 0.
 
-### How to generate a valid token
+#### How to generate a valid token
 
-#### Working X server is available
+##### Working X server is available
 
 Create a random string of 32 hexadecimal characters and set the 17th and 18th characters to 0.
 
@@ -118,18 +117,18 @@ Create a random string of 32 hexadecimal characters and set the 17th and 18th ch
   If you have access to a working X server,
   use the command `xauth add :0 XDM-AUTHORIZATION-1 aabbccddeeffaabb00aabbccddeeffaa` to add it to your xauth.
 
-#### Working X server is unavailable
+##### Working X server is unavailable
 
 If you don't have access to X server, there are two additional methods.
 
-##### Command Line
+###### Command Line
 
 Any of the commands shown in **MIT-MAGIC-COOKIE-1** followed by `| sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '` will
 generate a valid **XDM-AUTHORIZATION-1** token
 
-##### Pseudocode with an implemented example
+###### Pseudocode with an implemented example
 
-###### Pseudocode
+####### Pseudocode
 
 1. Declare and initialize an empty string
 2. Generate a random number from 0 to 15
@@ -139,7 +138,7 @@ generate a valid **XDM-AUTHORIZATION-1** token
 6. Set the 17th and 18th characters to 0.
 7. Store the string so you can use it for authentification
 
-###### Implementation
+####### Implementation
 
 ```c
 int main(void)
@@ -162,23 +161,23 @@ int main(void)
 }
 ```
 
-# How it works
+## How it works
 
 **XNamespace (XN)** uses the **X Access Control Extension Specification (XACE)** to hook into the X server's functions.
 Whenever a client tries to access an X server resource, the client's namespace is checked for the correct privileges.
 If the client is in the correct namespace with the appropriate permissions, access to the resource is granted;
 otherwise, XN will deny access to that resource.
 
-## XACE Callbacks Enums used by XN
+### XACE Callbacks Enums used by XN
 
 - XACE_EXT_DISPATCH (XED)
 - XACE_EXT_ACCESS (XEA)
 - XACE_RECEIVE_ACCESS (XRecA)
 - XACE_RESOURCE_ACCESS (XResA)
 
-## Consequences of Unallowed access
+### Consequences of Unallowed access
 
-| Property          | XED                                            | XEA                        | XRecA                                           | XResA                     |
+| Permissions       | XED                                            | XEA                        | XRecA                                           | XResA                     |
 |-------------------|------------------------------------------------|----------------------------|-------------------------------------------------|---------------------------|
 | allowMouseMotion  | N/A                                            | N/A                        | Status is set to BadAccess and client is logged | N/A                       |
 | allowShape        | Status is not changed and the client is logged | Status is set to BadAccess | N/A                                             | N/A                       |
@@ -186,14 +185,14 @@ otherwise, XN will deny access to that resource.
 | allowXInput       | Status is not changed and the client is logged | Status is set to BadAccess | N/A                                             | N/A                       |
 | allowXKeyboard    | Status is not changed and the client is logged | N/A                        | N/A                                             | N/A                       |
 
-## Examples
+### Examples
 
-### Permissions given by example file
+#### Permissions given by example file
 
 Use the example conf file below, the table represent what each namespace is allowed to do.
 
 ```
-# When no container are mentioned, all auths and allows configured affect the "root" namespace
+## When no container are mentioned, all auths and allows configured affect the "root" namespace
     auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b0
     
 container xeyes
@@ -213,7 +212,7 @@ container xclock
 | xeyes     | ✔️           | ✔️    | ✔️     |
 | xclock    |              |       |        |
 
-### Example of Clients trying to access xinput and each other from different namespaces
+#### Example of Clients trying to access xinput and each other from different namespaces
 
 | Client  | Namespace | Access to xinput    | Communication with others          |
 |---------|-----------|---------------------|------------------------------------|
