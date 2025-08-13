@@ -1,9 +1,9 @@
 # There are three commands accepted by Xnamespace for the purposes of configuring
-# The "container" command changes the current namespace. This changes the namespace the other commands are operating on.
+# The "namespace" command changes the current namespace. This changes the namespace the other commands are operating on.
 # The "allow" command configures the current namespace permissions for XLibre resources
 # The "auth" command configures the current namespace to accept protocols and tokens to allow client access
 
-# When no container are mentioned, all auths and allows configured affect the "root" namespace
+# When no namespace are mentioned, all auths and allows configured affect the "root" namespace
 # By default, all allowable properties are enabled in the root namespace and can't be disabled from the config file.
 # No configuration line can be greater than 1024 8-bit characters after excluding the '\n' and text after '#'
 #   else information after that point is ignored
@@ -19,9 +19,9 @@
     #     for the protocol provided. You can retrieve using "xauth list :1". For more information, use "man xauth".
 
 
-# container <name>
+# namespace <name>
 # creates the namespace xeyes, and makes all "auths" and "allow" configurations affect xeyes namespace only
-container xeyes
+namespace xeyes
 
   # sets an auth key using the "MIT-MAGIC-COOKIE-1" protocol for xeyes namespace
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b8
@@ -35,7 +35,7 @@ container xeyes
   allow xinput
 
 # creates namespace "xclock", and makes all "auths" and "allow" command configurations affect "xclock" namespace only
-container xclock
+namespace xclock
 
   # set auth key for "xclock" namespace
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b7

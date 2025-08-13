@@ -14,20 +14,20 @@ server startup.
 There is no dynamic provisioning in this version yet.
 The extension is enabled when a namespace config is passed to the Xserver via the
 `-namespace <fn>` flag.
-If a container hasn't been declared previously, the current container is **root**.
+If a namespace hasn't been declared previously, the current namespace is **root**.
 As a consequence, the **superpower**and **allow** commands have no effect as the root has every resource accessible.
-So, only the **auth** command matters before the first **container** is declared
+So, only the **auth** command matters before the first **namespace** is declared
 
 ### Commands
 
 A configuration file accepts four types of commands.
 
-| Command    | Description                                                                                                                                          |
-|------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| container  | Creates a new container and changes the current namespace to the new container.                                                                      |
-| allow      | Enables access to resource on a case by case basis for the current namespace.                                                                        |
-| auth       | Adds a new token to a namespace so it can be used to access the current namespace. [Permissions mentioned below.](#consequences-of-unallowed-access) |
-| superpower | Current namespace is give all the powers of the root namespace.                                                                                      |
+| Command                | Description                                                                                                                                          |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| namespace              | Creates a new namespace and changes the current namespace to the new namespace.                                                                      |
+| allow                  | Enables access to resource on a case by case basis for the current namespace.                                                                        |
+| auth                   | Adds a new token to a namespace so it can be used to access the current namespace. [Permissions mentioned below.](#consequences-of-unallowed-access) |
+| superpower             | Current namespace is give all the powers of the root namespace.                                                                                      |
 
 See `Xext/namespace/ns.conf.example` for a configuration file example.
 
@@ -104,28 +104,28 @@ otherwise, XN will deny access to that resource.
 Presented below is an example Xnamespace configuration file.
 
 ```
-## When no container are mentioned, all auths and allows configured affect the "root" namespace
+## When no namespace are mentioned, all auths and allows configured affect the "root" namespace
     auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b0
     
-container xeyes
+namespace xeyes
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b8
   
   allow mouse-motion
   allow shape
   allow xinput
 
-container xclock
+namespace xclock
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b7
   allow transparency
   allow xkeyboard
  
- container foobar
+ namespace foobar
     superpower
 ```
 
 Using the example conf file above, the table below represents what each namespace is allowed to do.
 
-| Container | mouse-motion | shape | xinput | xkeyboard | transparency |
+| namespace | mouse-motion | shape | xinput | xkeyboard | transparency |
 |-----------|--------------|-------|--------|-----------|--------------|
 | root      | ✔️           | ✔️    | ✔️     | ✔️        | ✔️           |
 | xeyes     | ✔️           | ✔️    | ✔️     |           |              |
