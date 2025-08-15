@@ -84,10 +84,12 @@ otherwise, XN will deny access to that resource.
 
 ### XACE Callbacks Enums used by XN
 
-- XACE_EXT_DISPATCH (XED)
-- XACE_EXT_ACCESS (XEA)
-- XACE_RECEIVE_ACCESS (XRecA)
-- XACE_RESOURCE_ACCESS (XResA)
+| Name                                                                                                                       | Abbreviation | Description                                                                                                                                                                     |
+|----------------------------------------------------------------------------------------------------------------------------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [XACE_EXT_DISPATCH](https://www.x.org/releases/X11R7.6/doc/xorg-docs/specs/Xserver/XACE-Spec.html#ext_dispatch_hook)       | XED          | This hook allows security extensions to examine all incoming extension protocol requests before they are dispatched.                                                            |
+| [XACE_EXT_ACCESS](https://www.x.org/releases/X11R7.6/doc/xorg-docs/specs/Xserver/XACE-Spec.html#ext_access_hook)           | XEA          | This hook allows security extensions to approve or deny requests involving which extensions are supported by the server. This allows control over which extensions are visible. |
+| [XACE_RECEIVE_ACCESS](https://www.x.org/releases/X11R7.6/doc/xorg-docs/specs/Xserver/XACE-Spec.html#receive_access_hook)   | XRecA        | This hook allows security extensions to prevent a client from receiving X events that have been delivered to a given window.                                                    |
+| [XACE_RESOURCE_ACCESS](https://www.x.org/releases/X11R7.6/doc/xorg-docs/specs/Xserver/XACE-Spec.html#resource_access_hook) | XResA        | This hook allows security extensions to monitor all resource lookups.                                                                                                           |
 
 ### Consequences of Unallowed access
 
