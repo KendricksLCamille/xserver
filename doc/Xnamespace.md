@@ -14,20 +14,22 @@ server startup.
 There is no dynamic provisioning in this version yet.
 The extension is enabled when a namespace config is passed to the Xserver via the
 `-namespace <fn>` flag.
-If a namespace hasn't been declared previously, the current namespace is **root**.
-As a consequence, the **superpower**and **allow** commands have no effect as the root has every resource accessible.
+If the **namespace** command hasn't appeared in the configuration, the current namespace is **root**. 
+Else, the current **namespace** for a non-namespace command is the nearest namespace declared above it.
+As a consequence, the **superpower**and **allow** commands have no effect as the root has every resource is accessible.
 So, only the **auth** command matters before the first **namespace** is declared
 
 ### Commands
 
 A configuration file accepts four types of commands.
 
-| Command                | Description                                                                                                                                          |
-|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| namespace              | Creates a new namespace and changes the current namespace to the new namespace.                                                                      |
-| allow                  | Enables access to resource on a case by case basis for the current namespace.                                                                        |
-| auth                   | Adds a new token to a namespace so it can be used to access the current namespace. [Permissions mentioned below.](#consequences-of-unallowed-access) |
-| superpower             | Current namespace is give all the powers of the root namespace.                                                                                      |
+| Command               | Description                                                                                                                                            |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| namespace             | Creates a new namespace and changes the current namespace to the new namespace.                                                                        |
+| allow                 | Enables permission to access resources for the current namespace.                                                                                      |
+| auth                  | Adds a new token to a namespace so it can be used to access the current namespace. [Permissions mentioned below.](#consequences-of-unallowed-access)   |
+| superpower            | Current namespace is give all the powers of the root namespace.                                                                                        |
+| container(depracated) | The original method of declaring a new namespace. It is an alias for namespace This may be removed as soon as 26.0.0 so update all confs to namespace. |
 
 See `Xext/namespace/ns.conf.example` for a configuration file example.
 
