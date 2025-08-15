@@ -28,7 +28,7 @@ A configuration file accepts four types of commands.
 | namespace             | Creates a new namespace and changes the current namespace to the new namespace.                                                                        |
 | allow                 | Enables permission to access resources for the current namespace.                                                                                      |
 | auth                  | Adds a new token to a namespace so it can be used to access the current namespace. [Permissions mentioned below.](#consequences-of-unallowed-access)   |
-| superpower            | Current namespace is give all the powers of the root namespace.                                                                                        |
+| superpower            | Current namespace is given all the powers of the root namespace.                                                                                       |
 | container(depracated) | The original method of declaring a new namespace. It is an alias for namespace This may be removed as soon as 26.0.0 so update all confs to namespace. |
 
 See `Xext/namespace/ns.conf.example` for a configuration file example.
