@@ -14,10 +14,10 @@ server startup.
 There is no dynamic provisioning in this version yet.
 The extension is enabled when a namespace config is passed to the Xserver via the
 `-namespace <fn>` flag.
-If the **namespace** command hasn't appeared in the configuration, the current namespace is **root**. 
+If the **namespace** command hasn't appeared in the configuration, the current namespace is **root** for a non-namespace command. 
 Else, the current **namespace** for a non-namespace command is the nearest namespace declared above it.
-As a consequence, the **superpower**and **allow** commands have no effect as the root has every resource is accessible.
-So, only the **auth** command matters before the first **namespace** is declared
+As a consequence, the **superpower**and **allow** commands have no effect as the root has access to every resource.
+So, only the **auth** command matters before the first **namespace** is declared.
 
 ### Commands
 
@@ -29,7 +29,9 @@ A configuration file accepts four types of commands.
 | allow                 | Enables permission to access resources for the current namespace.                                                                                      |
 | auth                  | Adds a new token to a namespace so it can be used to access the current namespace. [Permissions mentioned below.](#consequences-of-unallowed-access)   |
 | superpower            | Current namespace is given all the powers of the root namespace.                                                                                       |
-| container(depracated) | The original method of declaring a new namespace. It is an alias for namespace This may be removed as soon as 26.0.0 so update all confs to namespace. |
+| container(depracated) | The original command for declaring a new namespace. It is an alias for the **namespace** command. This may be removed as soon as 26.0.0 so update all confs to use **namespace** instead. Anything that applices to **namespace** command applies to the container **command** as well. |
+
+
 
 See `Xext/namespace/ns.conf.example` for a configuration file example.
 
