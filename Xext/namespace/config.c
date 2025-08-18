@@ -74,7 +74,7 @@ static int hex2bin(const char *in, char *out)
 /*
  * loadConfig
  *
- * Load the container config
+ * Load the namespace config
 */
 static void parseLine(char *line, struct Xnamespace **walk_ns)
 {
@@ -92,14 +92,15 @@ static void parseLine(char *line, struct Xnamespace **walk_ns)
     if (token == NULL)
         return;
 
-    // if no "container" statement hasn't been issued yet, use root NS
+    /* if no "namespace" statement hasn't been issued yet, use root NS */
     struct Xnamespace * curr = (*walk_ns ? *walk_ns : &ns_root);
 
-    if (strcmp(token, "container") == 0)
+    if ((strcmp(token, "namespace") == 0) ||
+        (strcmp(token, "container") == 0)) /* "container" is deprecated ! */
     {
         if ((token = strtok(NULL, " ")) == NULL)
         {
-            XNS_LOG("container missing id\n");
+            XNS_LOG("namespace missing id\n");
             return;
         }
 
@@ -123,6 +124,7 @@ static void parseLine(char *line, struct Xnamespace **walk_ns)
         new_token->authTokenLen = strlen(token)/2;
         new_token->authTokenData = calloc(1, new_token->authTokenLen);
         if (!new_token->authTokenData) {
+            free(new_token->authProto);
             free(new_token);
             return;
         }
@@ -178,7 +180,7 @@ Bool XnsLoadConfig(void)
 
     FILE *fp = fopen(namespaceConfigFile, "r");
     if (fp == NULL) {
-        FatalError("failed loading container config: %s\n", namespaceConfigFile);
+        FatalError("failed loading namespace config: %s\n", namespaceConfigFile);
         return FALSE;
     }
 

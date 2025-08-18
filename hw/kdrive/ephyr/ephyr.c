@@ -958,8 +958,8 @@ screen_from_window(Window w)
     int i = 0;
 
     for (i = 0; i < screenInfo.numScreens; i++) {
-        ScreenPtr pScreen = screenInfo.screens[i];
-        KdPrivScreenPtr kdscrpriv = KdGetScreenPriv(pScreen);
+        ScreenPtr walkScreen = screenInfo.screens[i];
+        KdPrivScreenPtr kdscrpriv = KdGetScreenPriv(walkScreen);
         KdScreenInfo *screen = kdscrpriv->screen;
         EphyrScrPriv *scrpriv = screen->driver;
 
@@ -979,9 +979,9 @@ ephyrProcessErrorEvent(xcb_generic_event_t *xev)
     xcb_generic_error_t *e = (xcb_generic_error_t *)xev;
 
     FatalError("X11 error\n"
-               "Error code: %hhu\n"
+               "Error code: %hu\n"
                "Sequence number: %hu\n"
-               "Major code: %hhu\tMinor code: %hu\n"
+               "Major code: %hu\tMinor code: %hu\n"
                "Error value: %u\n",
                e->error_code,
                e->sequence,

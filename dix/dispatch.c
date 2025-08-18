@@ -576,9 +576,7 @@ Dispatch(void)
         }
         dispatchException &= ~DE_PRIORITYCHANGE;
     }
-#if defined(DDXBEFORERESET)
     ddxBeforeReset();
-#endif
     KillAllClients();
     dispatchException &= ~DE_RESET;
     SmartScheduleLatencyLimited = 0;
@@ -653,33 +651,32 @@ CreateConnectionBlock(void)
     memset(&depth, 0, sizeof(xDepth));
     memset(&visual, 0, sizeof(xVisualType));
     for (int i = 0; i < screenInfo.numScreens; i++) {
-        ScreenPtr pScreen;
         DepthPtr pDepth;
         VisualPtr pVisual;
+        ScreenPtr walkScreen = screenInfo.screens[i];
 
-        pScreen = screenInfo.screens[i];
-        root.windowId = pScreen->root->drawable.id;
-        root.defaultColormap = pScreen->defColormap;
-        root.whitePixel = pScreen->whitePixel;
-        root.blackPixel = pScreen->blackPixel;
+        root.windowId = walkScreen->root->drawable.id;
+        root.defaultColormap = walkScreen->defColormap;
+        root.whitePixel = walkScreen->whitePixel;
+        root.blackPixel = walkScreen->blackPixel;
         root.currentInputMask = 0;      /* filled in when sent */
-        root.pixWidth = pScreen->width;
-        root.pixHeight = pScreen->height;
-        root.mmWidth = pScreen->mmWidth;
-        root.mmHeight = pScreen->mmHeight;
-        root.minInstalledMaps = pScreen->minInstalledCmaps;
-        root.maxInstalledMaps = pScreen->maxInstalledCmaps;
-        root.rootVisualID = pScreen->rootVisual;
-        root.backingStore = pScreen->backingStoreSupport;
+        root.pixWidth = walkScreen->width;
+        root.pixHeight = walkScreen->height;
+        root.mmWidth = walkScreen->mmWidth;
+        root.mmHeight = walkScreen->mmHeight;
+        root.minInstalledMaps = walkScreen->minInstalledCmaps;
+        root.maxInstalledMaps = walkScreen->maxInstalledCmaps;
+        root.rootVisualID = walkScreen->rootVisual;
+        root.backingStore = walkScreen->backingStoreSupport;
         root.saveUnders = FALSE;
-        root.rootDepth = pScreen->rootDepth;
-        root.nDepths = pScreen->numDepths;
+        root.rootDepth = walkScreen->rootDepth;
+        root.nDepths = walkScreen->numDepths;
         memcpy(pBuf, &root, sizeof(xWindowRoot));
         sizesofar += sizeof(xWindowRoot);
         pBuf += sizeof(xWindowRoot);
 
-        pDepth = pScreen->allowedDepths;
-        for (int j = 0; j < pScreen->numDepths; j++, pDepth++) {
+        pDepth = walkScreen->allowedDepths;
+        for (int j = 0; j < walkScreen->numDepths; j++, pDepth++) {
             lenofblock += sizeof(xDepth) +
                 (pDepth->numVids * sizeof(xVisualType));
             pBuf = (char *) realloc(ConnectionInfo, lenofblock);
@@ -696,7 +693,7 @@ CreateConnectionBlock(void)
             sizesofar += sizeof(xDepth);
             for (int k = 0; k < pDepth->numVids; k++) {
                 vid = pDepth->vids[k];
-                for (pVisual = pScreen->visuals;
+                for (pVisual = walkScreen->visuals;
                      pVisual->vid != vid; pVisual++);
                 visual.visualID = vid;
                 visual.class = pVisual->class;
@@ -1021,9 +1018,8 @@ ProcGetGeometry(ClientPtr client)
 int
 ProcQueryTree(ClientPtr client)
 {
-    int rc, numChildren = 0;
+    int rc;
     WindowPtr pWin, pHead;
-    Window *childIDs = (Window *) NULL;
 
     REQUEST(xResourceReq);
 
@@ -1033,18 +1029,17 @@ ProcQueryTree(ClientPtr client)
         return rc;
 
     pHead = RealChildHead(pWin);
-    for (WindowPtr pChild = pWin->lastChild; pChild != pHead; pChild = pChild->prevSib)
-        numChildren++;
-    if (numChildren) {
-        int curChild = 0;
 
-        childIDs = calloc(numChildren, sizeof(Window));
-        if (!childIDs)
-            return BadAlloc;
-        for (WindowPtr pChild = pWin->lastChild; pChild != pHead;
-             pChild = pChild->prevSib)
-            childIDs[curChild++] = pChild->drawable.id;
+    x_rpcbuf_t rpcbuf = { .swapped = client->swapped, .err_clear = TRUE };
+
+    CARD32 numChildren = 0;
+    for (WindowPtr pChild = pWin->lastChild; pChild != pHead; pChild = pChild->prevSib) {
+        x_rpcbuf_write_CARD32(&rpcbuf, pChild->drawable.id);
+        numChildren++;
     }
+
+    if (rpcbuf.error)
+        return BadAlloc;
 
     xQueryTreeReply rep = {
         .type = X_Reply,
@@ -1052,20 +1047,19 @@ ProcQueryTree(ClientPtr client)
         .root = pWin->drawable.pScreen->root->drawable.id,
         .parent = (pWin->parent) ? pWin->parent->drawable.id : (Window) None,
         .nChildren = numChildren,
-        .length = bytes_to_int32(numChildren * sizeof(Window)),
+        .length = x_rpcbuf_wsize_units(&rpcbuf)
     };
 
     if (client->swapped) {
-        SwapLongs(childIDs, rep.length);
         swaps(&rep.sequenceNumber);
         swapl(&rep.length);
         swapl(&rep.root);
         swapl(&rep.parent);
         swaps(&rep.nChildren);
     }
+
     WriteToClient(client, sizeof(rep), &rep);
-    WriteToClient(client, numChildren * sizeof(Window), childIDs);
-    free(childIDs);
+    WriteRpcbufToClient(client, &rpcbuf);
     return Success;
 }
 
@@ -3230,14 +3224,14 @@ ProcQueryBestSize(ClientPtr client)
 int
 ProcSetScreenSaver(ClientPtr client)
 {
-    int rc, blankingOption, exposureOption;
+    int blankingOption, exposureOption;
 
     REQUEST(xSetScreenSaverReq);
     REQUEST_SIZE_MATCH(xSetScreenSaverReq);
 
     for (int i = 0; i < screenInfo.numScreens; i++) {
-        rc = XaceHookScreensaverAccess(client, screenInfo.screens[i],
-                      DixSetAttrAccess);
+        ScreenPtr walkScreen = screenInfo.screens[i];
+        int rc = XaceHookScreensaverAccess(client, walkScreen, DixSetAttrAccess);
         if (rc != Success)
             return rc;
     }
@@ -3290,13 +3284,11 @@ ProcSetScreenSaver(ClientPtr client)
 int
 ProcGetScreenSaver(ClientPtr client)
 {
-    int rc;
-
     REQUEST_SIZE_MATCH(xReq);
 
     for (int i = 0; i < screenInfo.numScreens; i++) {
-        rc = XaceHookScreensaverAccess(client, screenInfo.screens[i],
-                      DixGetAttrAccess);
+        ScreenPtr walkScreen = screenInfo.screens[i];
+        int rc = XaceHookScreensaverAccess(client, walkScreen, DixGetAttrAccess);
         if (rc != Success)
             return rc;
     }
@@ -3819,8 +3811,9 @@ SendConnSetup(ClientPtr client, const char *reason)
 #endif /* XINERAMA */
 
     for (int i = 0; i < numScreens; i++) {
+        ScreenPtr walkScreen = screenInfo.screens[i];
         xDepth *pDepth;
-        WindowPtr pRoot = screenInfo.screens[i]->root;
+        WindowPtr pRoot = walkScreen->root;
 
         root->currentInputMask = pRoot->eventMask | wOtherEventMasks(pRoot);
         pDepth = (xDepth *) (root + 1);

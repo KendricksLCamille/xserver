@@ -316,7 +316,7 @@ ProcShapeRectangles(ClientPtr client)
     }
     return result;
 #else
-    return ShapeRectangles(client);
+    return ShapeRectangles(client, stuff);
 #endif
 }
 
@@ -964,7 +964,7 @@ ProcShapeGetRectangles(ClientPtr client)
         return BadValue;
     }
 
-    struct x_rpcbuf rpcbuf = { .swapped = client->swapped, .err_clear = TRUE };
+    x_rpcbuf_t rpcbuf = { .swapped = client->swapped, .err_clear = TRUE };
 
     if (!region) {
         xRectangle rect;
@@ -1009,20 +1009,15 @@ ProcShapeGetRectangles(ClientPtr client)
         return BadAlloc;
 
     xShapeGetRectanglesReply rep = {
-        .type = X_Reply,
         .ordering = YXBanded,
-        .sequenceNumber = client->sequence,
-        .length = x_rpcbuf_wsize_units(&rpcbuf),
         .nrects = nrects
     };
 
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swapl(&rep.nrects);
     }
-    WriteToClient(client, sizeof(rep), &rep);
-    WriteRpcbufToClient(client, &rpcbuf);
+
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 

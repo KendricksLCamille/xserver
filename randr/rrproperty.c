@@ -417,47 +417,31 @@ int
 ProcRRListOutputProperties(ClientPtr client)
 {
     REQUEST(xRRListOutputPropertiesReq);
-    int numProps = 0;
-    RROutputPtr output;
-    RRPropertyPtr prop;
-
     REQUEST_SIZE_MATCH(xRRListOutputPropertiesReq);
 
+    RROutputPtr output;
     VERIFY_RR_OUTPUT(stuff->output, output, DixReadAccess);
 
-    for (prop = output->properties; prop; prop = prop->next)
+    x_rpcbuf_t rpcbuf = { .swapped = client->swapped, .err_clear = TRUE };
+
+    size_t numProps = 0;
+    for (RRPropertyPtr prop = output->properties; prop; prop = prop->next) {
         numProps++;
+        x_rpcbuf_write_CARD32(&rpcbuf, prop->propertyName);
+    }
+
+    if (rpcbuf.error)
+        return BadAlloc;
 
     xRRListOutputPropertiesReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = bytes_to_int32(numProps * sizeof(Atom)),
         .nAtoms = numProps
     };
+
     if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
         swaps(&rep.nAtoms);
     }
 
-    Atom* pAtoms = calloc(sizeof(Atom), numProps);
-    if (numProps) {
-        if (!pAtoms)
-            return BadAlloc;
-
-        /* Copy property name atoms to reply buffer */
-        Atom *temppAtoms = pAtoms;
-        for (prop = output->properties; prop; prop = prop->next)
-            *temppAtoms++ = prop->propertyName;
-
-        if (client->swapped)
-            SwapLongs(pAtoms, numProps);
-    }
-
-    WriteToClient(client, sizeof(xRRListOutputPropertiesReply), &rep);
-    WriteToClient(client, sizeof(Atom) * numProps, pAtoms);
-    free(pAtoms);
-
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 
@@ -467,45 +451,27 @@ ProcRRQueryOutputProperty(ClientPtr client)
     REQUEST(xRRQueryOutputPropertyReq);
     RROutputPtr output;
     RRPropertyPtr prop;
-    char *extra = NULL;
 
     REQUEST_SIZE_MATCH(xRRQueryOutputPropertyReq);
-
     VERIFY_RR_OUTPUT(stuff->output, output, DixReadAccess);
 
     prop = RRQueryOutputProperty(output, stuff->property);
     if (!prop)
         return BadName;
 
-    if (prop->num_valid) {
-        extra = calloc(prop->num_valid, sizeof(INT32));
-        if (!extra)
-            return BadAlloc;
-    }
+    x_rpcbuf_t rpcbuf = { .swapped = client->swapped, .err_clear = TRUE };
+    x_rpcbuf_write_CARD32s(&rpcbuf, (CARD32*)prop->valid_values, prop->num_valid);
+
+    if (rpcbuf.error)
+        return BadAlloc;
 
     xRRQueryOutputPropertyReply rep = {
-        .type = X_Reply,
-        .sequenceNumber = client->sequence,
-        .length = prop->num_valid,
         .pending = prop->is_pending,
         .range = prop->range,
         .immutable = prop->immutable
     };
 
-    if (client->swapped) {
-        swaps(&rep.sequenceNumber);
-        swapl(&rep.length);
-    }
-    if (prop->num_valid) {
-        memcpy(extra, prop->valid_values, prop->num_valid * sizeof(INT32));
-        if (client->swapped)
-            SwapLongs((CARD32*)extra, prop->num_valid);
-    }
-
-    WriteToClient(client, sizeof(xRRQueryOutputPropertyReply), &rep);
-    WriteToClient(client, prop->num_valid * sizeof(INT32), extra);
-    free(extra);
-
+    X_SEND_REPLY_WITH_RPCBUF(client, rep, rpcbuf);
     return Success;
 }
 

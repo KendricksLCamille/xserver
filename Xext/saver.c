@@ -381,7 +381,6 @@ SendScreenSaverNotify(ScreenPtr pScreen, int state, Bool forced)
     mask = ScreenSaverNotifyMask;
     if (state == ScreenSaverCycle)
         mask = ScreenSaverCycleMask;
-    pScreen = screenInfo.screens[pScreen->myNum];
     pPriv = GetScreenPrivate(pScreen);
     if (!pPriv)
         return;
@@ -1336,7 +1335,6 @@ ScreenSaverExtensionInit(void)
 {
     ExtensionEntry *extEntry;
     int i;
-    ScreenPtr pScreen;
 
     if (!dixRegisterPrivateKey(&ScreenPrivateKeyRec, PRIVATE_SCREEN, 0))
         return;
@@ -1346,8 +1344,8 @@ ScreenSaverExtensionInit(void)
     SuspendType = CreateNewResourceType(ScreenSaverFreeSuspend, "SaverSuspend");
 
     for (i = 0; i < screenInfo.numScreens; i++) {
-        pScreen = screenInfo.screens[i];
-        SetScreenPrivate(pScreen, NULL);
+        ScreenPtr walkScreen = screenInfo.screens[i];
+        SetScreenPrivate(walkScreen, NULL);
     }
     if (AttrType && SaverEventType && SuspendType &&
         (extEntry = AddExtension(ScreenSaverName, ScreenSaverNumberEvents, 0,

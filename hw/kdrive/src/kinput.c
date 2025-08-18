@@ -77,6 +77,22 @@ static KdPointerMatrix kdPointerMatrix = {
      {0, 1, 0}}
 };
 
+#define KD_MAX_INPUT_FDS    8
+
+typedef struct _kdInputFd {
+    int fd;
+    void (*read) (int fd, void *closure);
+    int (*enable) (int fd, void *closure);
+    void (*disable) (int fd, void *closure);
+    void *closure;
+} KdInputFd;
+
+static KdInputFd kdInputFds[KD_MAX_INPUT_FDS];
+static int kdNumInputFds = 0;
+#ifdef KDRIVE_KBD
+static int kdnFds = 0;
+#endif
+
 extern Bool kdRawPointerCoordinates;
 
 extern const char *kdGlobalXkbRules;
@@ -84,6 +100,14 @@ extern const char *kdGlobalXkbModel;
 extern const char *kdGlobalXkbLayout;
 extern const char *kdGlobalXkbVariant;
 extern const char *kdGlobalXkbOptions;
+
+#ifdef KDRIVE_KBD
+static void KdSigio(int sig)
+{
+    for (int i = 0; i < kdNumInputFds; i++)
+        (*kdInputFds[i].read) (kdInputFds[i].fd, kdInputFds[i].closure);
+}
+#endif
 
 #ifdef FNONBLOCK
 #define NOBLOCK FNONBLOCK
@@ -100,6 +124,106 @@ KdResetInputMachine(void)
         pi->mouseState = start;
         pi->eventHeld = FALSE;
     }
+}
+
+static void KdNonBlockFd(int fd)
+{
+#ifndef WIN32
+    int flags = fcntl(fd, F_GETFL);
+    flags |= FASYNC | NOBLOCK;
+    fcntl(fd, F_SETFL, flags);
+#endif
+}
+
+static void KdNotifyFd(int fd, int ready, void *data)
+{
+    int i = (int) (intptr_t) data;
+    (*kdInputFds[i].read)(fd, kdInputFds[i].closure);
+}
+
+static void KdAddFd(int fd, int i)
+{
+#ifdef KDRIVE_KBD
+    struct sigaction act;
+
+    sigset_t set;
+
+    kdnFds++;
+    fcntl(fd, F_SETOWN, getpid());
+#endif
+    KdNonBlockFd(fd);
+    InputThreadRegisterDev(fd, KdNotifyFd, (void *) (intptr_t) i);
+#ifdef KDRIVE_KBD
+    memset(&act, '\0', sizeof act);
+    act.sa_handler = KdSigio;
+
+    sigemptyset(&act.sa_mask);
+    sigaddset(&act.sa_mask, SIGIO);
+    sigaddset(&act.sa_mask, SIGALRM);
+    sigaddset(&act.sa_mask, SIGVTALRM);
+    sigaction(SIGIO, &act, 0);
+    sigemptyset(&set);
+    sigprocmask(SIG_SETMASK, &set, 0);
+#endif
+}
+
+static void KdRemoveFd(int fd)
+{
+    InputThreadUnregisterDev(fd);
+#ifndef WIN32
+    int flags = fcntl(fd, F_GETFL);
+    flags &= ~(FASYNC | NOBLOCK);
+    fcntl(fd, F_SETFL, flags);
+#endif
+#ifdef KDRIVE_KBD
+    struct sigaction act;
+    kdnFds--;
+    if (kdnFds == 0) {
+        memset(&act, '\0', sizeof act);
+        act.sa_handler = SIG_IGN;
+        sigemptyset(&act.sa_mask);
+        sigaction(SIGIO, &act, 0);
+    }
+#endif
+}
+
+Bool KdRegisterFd(int fd, void (*read) (int fd, void *closure), void *closure)
+{
+    if (kdNumInputFds == KD_MAX_INPUT_FDS)
+        return FALSE;
+    kdInputFds[kdNumInputFds].fd = fd;
+    kdInputFds[kdNumInputFds].read = read;
+    kdInputFds[kdNumInputFds].enable = 0;
+    kdInputFds[kdNumInputFds].disable = 0;
+    kdInputFds[kdNumInputFds].closure = closure;
+    if (kdInputEnabled)
+        KdAddFd(fd, kdNumInputFds);
+    kdNumInputFds++;
+    return TRUE;
+}
+
+void KdUnregisterFd(void *closure, int fd, Bool do_close)
+{
+    int i, j;
+
+    for (i = 0; i < kdNumInputFds; i++) {
+        if (kdInputFds[i].closure == closure &&
+            (fd == -1 || kdInputFds[i].fd == fd)) {
+            if (kdInputEnabled)
+                KdRemoveFd(kdInputFds[i].fd);
+            if (do_close)
+                close(kdInputFds[i].fd);
+            for (j = i; j < (kdNumInputFds - 1); j++)
+                kdInputFds[j] = kdInputFds[j + 1];
+            kdNumInputFds--;
+            break;
+        }
+    }
+}
+
+void KdUnregisterFds(void *closure, Bool do_close)
+{
+    KdUnregisterFd(closure, -1, do_close);
 }
 
 void
@@ -351,8 +475,7 @@ KdPointerProc(DeviceIntPtr pDevice, int onoff)
     return BadImplementation;
 }
 
-static void
-KdRingBell(KdKeyboardInfo * ki, int volume, int pitch, int duration)
+void KdRingBell(KdKeyboardInfo * ki, int volume, int pitch, int duration)
 {
     if (!ki || !ki->driver || !ki->driver->Bell)
         return;
@@ -406,8 +529,7 @@ KdSetLeds(KdKeyboardInfo * ki, int leds)
     }
 }
 
-static void
-KdSetLed(KdKeyboardInfo * ki, int led, Bool on)
+void KdSetLed(KdKeyboardInfo * ki, int led, Bool on)
 {
     if (!ki || !ki->dixdev || !ki->dixdev->kbdfeed)
         return;
@@ -930,8 +1052,7 @@ KdParseKbdOptions(KdKeyboardInfo * ki)
     }
 }
 
-static KdKeyboardInfo *
-KdParseKeyboard(const char *arg)
+KdKeyboardInfo *KdParseKeyboard(const char *arg)
 {
     char save[1024];
     char delim;
@@ -1050,9 +1171,7 @@ KdParsePointerOptions(KdPointerInfo * pi)
  *      2button     emulate middle button
  *      {NMO}       Reorder buttons
  */
-
-static KdPointerInfo *
-KdParsePointer(const char *arg)
+KdPointerInfo *KdParsePointer(const char *arg)
 {
     char save[1024];
     char delim;
@@ -1527,9 +1646,6 @@ KdClassifyInput(KdPointerInfo * pi, int type, int x, int y, int z, int b)
     return keyboard;
 }
 
-static void
-_KdEnqueuePointerEvent(KdPointerInfo * pi, int type, int x, int y, int z,
-                       int b, int absrel, Bool force);
 /* We return true if we're stealing the event. */
 static Bool
 KdRunMouseMachine(KdPointerInfo * pi, KdInputClass c, int type, int x, int y,
@@ -1603,9 +1719,8 @@ KdHandlePointerEvent(KdPointerInfo * pi, int type, int x, int y, int z, int b,
     return FALSE;
 }
 
-static void
-_KdEnqueuePointerEvent(KdPointerInfo * pi, int type, int x, int y, int z,
-                       int b, int absrel, Bool force)
+void _KdEnqueuePointerEvent(KdPointerInfo * pi, int type, int x, int y, int z,
+                            int b, int absrel, Bool force)
 {
     int valuators[3] = { x, y, z };
     ValuatorMask mask;
@@ -1809,7 +1924,6 @@ static Bool
 KdCursorOffScreen(ScreenPtr *ppScreen, int *x, int *y)
 {
     ScreenPtr pScreen = *ppScreen;
-    ScreenPtr pNewScreen;
     int n;
     int dx, dy;
     int best_x, best_y;
@@ -1832,11 +1946,11 @@ KdCursorOffScreen(ScreenPtr *ppScreen, int *x, int *y)
     n_best_y = -1;
     best_y = 32767;
     for (n = 0; n < screenInfo.numScreens; n++) {
-        pNewScreen = screenInfo.screens[n];
-        if (pNewScreen == pScreen)
+        ScreenPtr walkScreen = screenInfo.screens[n];
+        if (walkScreen == pScreen)
             continue;
-        dx = KdScreenOrigin(pNewScreen)->x - KdScreenOrigin(pScreen)->x;
-        dy = KdScreenOrigin(pNewScreen)->y - KdScreenOrigin(pScreen)->y;
+        dx = KdScreenOrigin(walkScreen)->x - KdScreenOrigin(walkScreen)->x;
+        dy = KdScreenOrigin(walkScreen)->y - KdScreenOrigin(walkScreen)->y;
         if (*x < 0) {
             if (dx < 0 && -dx < best_x) {
                 best_x = -dx;
@@ -1866,7 +1980,8 @@ KdCursorOffScreen(ScreenPtr *ppScreen, int *x, int *y)
         n_best_x = n_best_y;
     if (n_best_x == -1)
         return FALSE;
-    pNewScreen = screenInfo.screens[n_best_x];
+
+    ScreenPtr pNewScreen = screenInfo.screens[n_best_x];
 
     if (*x < 0)
         *x += pNewScreen->width;

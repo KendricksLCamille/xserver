@@ -170,6 +170,22 @@ Bool x_rpcbuf_write_CARD16(x_rpcbuf_t *rpcbuf, CARD16 value)
     _X_ATTRIBUTE_NONNULL_ARG(1);
 
 /*
+ * write a INT16 and do byte-swapping (when needed).
+ *
+ * allocate a region for INT16, write it into the buffer and do byte-swap
+ * if buffer is configured to do so (`swapped` field is TRUE).
+ *
+ * doesn't do any padding.
+ *
+ * @param rpcbuf    pointer to x_rpcbuf_t to operate on
+ * @param value     the CARD16 value to write
+ * @return          TRUE on success, FALSE on allocation failure
+ */
+static inline Bool x_rpcbuf_write_INT16(x_rpcbuf_t *rpcbuf, INT16 value) {
+    return x_rpcbuf_write_CARD16(rpcbuf, (CARD16)value);
+}
+
+/*
  * write a CARD32 and do byte-swapping (when needed).
  *
  * allocate a region for CARD32, write it into the buffer and do byte-swap
@@ -240,8 +256,19 @@ Bool x_rpcbuf_write_CARD32s(x_rpcbuf_t *rpcbuf, const CARD32 *values,
  * @param rpcbuf    pointer to x_rpcbuf_t to operate on
  * @return          number of 4-byte units (w/ padding) written into the buffer
  */
-static inline size_t x_rpcbuf_wsize_units(x_rpcbuf_t *rpcbuf) {
-    return bytes_to_int32(pad_to_int32(rpcbuf->wpos));
+static inline CARD32 x_rpcbuf_wsize_units(x_rpcbuf_t *rpcbuf) {
+    return (CARD32)((rpcbuf->wpos + 3) / 4);
+}
+
+/*
+ * pad the buffer to 4-byte-units (ie. write extra zeros if necessary)
+ *
+ * @param rpcbuf    pointer to x_rpcbuf_t to operate on
+ */
+static inline void x_rpcbuf_pad(x_rpcbuf_t *rpcbuf) {
+    x_rpcbuf_reserve0(
+        rpcbuf,
+        (((rpcbuf->wpos + 3) / 4) * 4) - rpcbuf->wpos);
 }
 
 #endif /* _XSERVER_DIX_RPCBUF_PRIV_H */
