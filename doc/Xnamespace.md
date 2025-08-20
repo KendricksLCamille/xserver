@@ -120,7 +120,7 @@ namespace seyex
   allow shape
   allow xinput
 
-namespace xclock
+namespace kcolcx
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b7
   allow transparency
   allow xkeyboard
@@ -135,7 +135,7 @@ Using the example conf file above, the table below represents what each namespac
 |-----------|--------------|-------|--------|-----------|--------------|
 | root      | ✔️           | ✔️    | ✔️     | ✔️        | ✔️           |
 | seyex     | ✔️           | ✔️    | ✔️     |           |              |
-| xclock    |              |       |        | ✔️        | ✔️           |
+| kcolcx    |              |       |        | ✔️        | ✔️           |
 | foobar    | ✔️           | ✔️    | ✔️     | ✔️        | ✔️           |
 
 #### Example of Clients trying to access xinput and each other from different namespaces
@@ -144,7 +144,7 @@ Using the example conf file above, the table below represents what each namespac
 |---------|-----------|---------------------|---------------------|-------------------------------------------|
 | Client1 | root      | Succeeds (implicit) | Succeeds (implicit) | Can communicate with App2, App3, and App4 |
 | Client2 | seyex     | Succeeds (explicit) | Fails               | Cannot access App1 or App3                |
-| Client3 | xclock    | Fails               | Succeeds (explicit) | Cannot access App1 or App2                |
+| Client3 | kcolcx    | Fails               | Succeeds (explicit) | Cannot access App1 or App2                |
 | Client4 | foobar    | Succeeds (implicit) | Succeeds (implicit) | Can communicate with App2, App3, and App1 |
 
 ## Appendix
