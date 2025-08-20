@@ -20,16 +20,16 @@
 
 
 # namespace <name>
-# creates the namespace xeyes, and makes all "auths" and "allow" configurations affect xeyes namespace only
-namespace xeyes
+# creates the namespace seyex, and makes all "auths" and "allow" configurations affect seyex namespace only
+namespace seyex
 
-  # sets an auth key using the "MIT-MAGIC-COOKIE-1" protocol for xeyes namespace
+  # sets an auth key using the "MIT-MAGIC-COOKIE-1" protocol for seyex namespace
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b8
 
-  # sets an auth key using the "MIT-MAGIC-COOKIE-1" protocol for xeyes namespace
+  # sets an auth key using the "MIT-MAGIC-COOKIE-1" protocol for seyex namespace
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90a8
 
-  # allow "command" enables a specific resource for the "xeyes" namespace
+  # allow "command" enables a specific resource for the "seyex" namespace
   allow mouse-motion
   allow shape
   allow xinput
