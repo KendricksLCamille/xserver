@@ -113,7 +113,7 @@ Presented below is an example Xnamespace configuration file.
 ## When no namespace are mentioned, all auths and allows configured affect the "root" namespace
     auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b0
     
-namespace xeyes
+namespace seyex
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b8
   
   allow mouse-motion
@@ -134,7 +134,7 @@ Using the example conf file above, the table below represents what each namespac
 | namespace | mouse-motion | shape | xinput | xkeyboard | transparency |
 |-----------|--------------|-------|--------|-----------|--------------|
 | root      | ✔️           | ✔️    | ✔️     | ✔️        | ✔️           |
-| xeyes     | ✔️           | ✔️    | ✔️     |           |              |
+| seyex     | ✔️           | ✔️    | ✔️     |           |              |
 | xclock    |              |       |        | ✔️        | ✔️           |
 | foobar    | ✔️           | ✔️    | ✔️     | ✔️        | ✔️           |
 
@@ -143,7 +143,7 @@ Using the example conf file above, the table below represents what each namespac
 | Client  | Namespace | Access to xinput    | Access transparency | Communication with others                 |
 |---------|-----------|---------------------|---------------------|-------------------------------------------|
 | Client1 | root      | Succeeds (implicit) | Succeeds (implicit) | Can communicate with App2, App3, and App4 |
-| Client2 | xeyes     | Succeeds (explicit) | Fails               | Cannot access App1 or App3                |
+| Client2 | seyex     | Succeeds (explicit) | Fails               | Cannot access App1 or App3                |
 | Client3 | xclock    | Fails               | Succeeds (explicit) | Cannot access App1 or App2                |
 | Client4 | foobar    | Succeeds (implicit) | Succeeds (implicit) | Can communicate with App2, App3, and App1 |
 
