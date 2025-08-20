@@ -34,10 +34,10 @@ namespace seyex
   allow shape
   allow xinput
 
-# creates namespace "xclock", and makes all "auths" and "allow" command configurations affect "xclock" namespace only
-namespace xclock
+# creates namespace "kcolcx", and makes all "auths" and "allow" command configurations affect "kcolcx" namespace only
+namespace kcolcx
 
-  # set auth key for "xclock" namespace
+  # set auth key for "kcolcx" namespace
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad90b7
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad91b7
   auth MIT-MAGIC-COOKIE-1 46f8e62b78e58962de0ceefc05ad92b7
