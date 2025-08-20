@@ -29,7 +29,7 @@ A configuration file accepts four types of commands.
 | allow                 | Enables permission to access resources for the current namespace.                                                                                      |
 | auth                  | Adds a new token to a namespace so it can be used to access the current namespace. [Permissions mentioned below.](#consequences-of-unallowed-access)   |
 | superpower            | Current namespace is given all the powers of the root namespace.                                                                                       |
-| container(depracated) | The original command for declaring a new namespace. It is an alias for the **namespace** command. This may be removed as soon as 26.0.0. Anything that applies to **namespace** command applies to the container **command** as well. |
+| container(deprecated) | The original command for declaring a new namespace. It is an alias for the **namespace** command. This may be removed as soon as 26.0.0. Anything that applies to **namespace** command applies to the container **command** as well. |
 
 
 
@@ -62,7 +62,7 @@ Else, if you don't have access to X server, use any of the commands below to gen
 - `uuidgen | tr -d '-'`
 - `xxd -u -l 16 -p /dev/urandom`
 
-For more information on implementing the protocol, please go to the [Appendix](#mit-magic-cookie-1-pseudocode).
+For more information on implementing the protocol, please see the [Appendix](#mit-magic-cookie-1-pseudocode).
 
 ### XDM-AUTHORIZATION-1
 
@@ -75,7 +75,7 @@ Any of the commands shown in [**MIT-MAGIC-COOKIE-1**](#mit_magic-cookie-1-protoc
 `| sed 's/^\(.\{16\}\)../\1 00/' | tr -d ' '` will
 generate a valid **XDM-AUTHORIZATION-1** token
 
-For more information on implementing the protocol, please go to the [Appendix](#xdm-authorization-1-pseudocode).
+For more information on implementing the protocol, please see the [Appendix](#xdm-authorization-1-pseudocode).
 
 ## How it works
 
